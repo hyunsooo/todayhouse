@@ -25,11 +25,17 @@ class FilterMenuCell: UITableViewCell {
         menuNameLabel.rightAnchor.constraint(equalTo: rightAnchor, constant: 16).isActive = true
     }
     
-    override var isSelected: Bool {
-        didSet {
-            backgroundColor = isSelected ? #colorLiteral(red: 0.937254902, green: 0.9843137255, blue: 1, alpha: 1) : .white
-            menuNameLabel.textColor = isSelected ? #colorLiteral(red: 0, green: 0.7860242724, blue: 0.9603441358, alpha: 1) : .black
-        }
+//    override var isSelected: Bool {
+//        didSet {
+//            backgroundColor = isSelected ? #colorLiteral(red: 0.937254902, green: 0.9843137255, blue: 1, alpha: 1) : .white
+//            menuNameLabel.textColor = isSelected ? #colorLiteral(red: 0, green: 0.7860242724, blue: 0.9603441358, alpha: 1) : .black
+//        }
+//    }
+    
+    override func setSelected(_ selected: Bool, animated: Bool) {
+        super.setSelected(selected, animated: animated)
+        backgroundColor = selected ? #colorLiteral(red: 0.937254902, green: 0.9843137255, blue: 1, alpha: 1) : .white
+        menuNameLabel.textColor = selected ? #colorLiteral(red: 0, green: 0.7860242724, blue: 0.9603441358, alpha: 1) : .black
     }
     
     required init?(coder: NSCoder) {

@@ -17,6 +17,7 @@ enum FilterType: String {
 protocol ListViewControllerDelegate: class {
     func deselectFilter(filter: Filter, type: FilterType)
     func selectFilter(filter: Filter, type: FilterType)
+    func initializeFilter(type: FilterType)
 }
 
 typealias Category = (key: FilterType, value: [Filter])
@@ -53,6 +54,8 @@ class ListViewController: UIViewController {
         if let layout = filterCollectionView.collectionViewLayout as? FilterLayout {
             layout.delegate = self
         }
+        
+        filterMenu.delegate = self
     }
     
     func setCategory() {
@@ -69,28 +72,17 @@ class ListViewController: UIViewController {
                                                            Filter(title: "사무공간", value: "4")]))
         
         categoryCollectionView.reloadData()
-        
-//        selectedFilters.append((filterName: "거실", param: URLQueryItem(name: "\(FilterType.space)", value: "1")))
-//        selectedFilters.append((filterName: "아파트", param: URLQueryItem(name: "\(FilterType.residence)", value: "1")))
-        
-//        filterCollectionView.reloadData()
     }
 }
 
 extension ListViewController {
     func loadData() {
         let urls = "https://s3.ap-northeast-2.amazonaws.com/bucketplace-coding-test/cards/page_\(currentPage).json"
-        if var url = URL(string: urls) {            // url string malform check
-//            let params: [String] = selectedFilters.map { (filterName, key, value) -> String in
-//                return key.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "" + "=" + value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-//            }
-            
-            
+        if let url = URL(string: urls) {            // url string malform check
+            let parameters = selectedFilters.map { "\($0.key.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")=\($0.value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")" }.joined(separator: "&")
             var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-//            request.httpBody = parameters.map { (key, value) -> String in
-//
-//            }.joined(separator: "&").data(using: .utf8)
+            request.httpMethod = "GET"
+            request.httpBody = parameters.data(using: .utf8)
             self.isLoading = true
             URLSession.shared.dataTask(with: request) { [weak self] (data, response, error) in
                 guard let self = self else { return }
@@ -214,8 +206,8 @@ extension ListViewController: FilterLayoutDelegate {
 extension ListViewController: ListViewControllerDelegate {
     func selectFilter(filter: Filter, type: FilterType) {
         // 필터 추가
-        let selected = (filterName: filter.title, key: type.rawValue, value: filter.value)
-        selectedFilters.append(selected)
+        let newFilter = (filterName: filter.title, key: "\(type)", value: filter.value)
+        selectedFilters.append(newFilter)
         filterCollectionView.reloadData()
         
         reload()
@@ -223,5 +215,20 @@ extension ListViewController: ListViewControllerDelegate {
     
     func deselectFilter(filter: Filter, type: FilterType) {
         // 필터 없애기 -> reload
+        selectedFilters.removeAll { (sfilter) -> Bool in
+            return sfilter.key == "\(type)" && sfilter.value == filter.value
+        }
+        filterCollectionView.reloadData()
+        
+        reload()
+    }
+    
+    func initializeFilter(type: FilterType) {
+        selectedFilters.removeAll { (sfilter) -> Bool in
+            return sfilter.key == "\(type)"
+        }
+        filterCollectionView.reloadData()
+        
+        reload()
     }
 }

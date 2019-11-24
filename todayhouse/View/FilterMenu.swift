@@ -135,11 +135,14 @@ extension FilterMenu: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         // ListViewController - selectedFilters append & reload
-        // 
+        guard let category = category else { return }
+        delegate?.selectFilter(filter: category.value[indexPath.row], type: category.key)
     }
     
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
         // ListViewController - selectedFilters remove & reload
+        guard let category = category else { return }
+        delegate?.deselectFilter(filter: category.value[indexPath.row], type: category.key)
     }
 }
 
