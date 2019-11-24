@@ -46,13 +46,13 @@ extension UILabel {
 }
 
 class Utils {
-    static func getTextSize(text: String) -> CGSize {
+    static func getTextSize(text: String, font: UIFont) -> CGSize {
         let label = UILabel()
-        label.font = UIFont(name: "Apple SD Gothic Neo", size: 15)
+        label.font = font
         label.text = text
         let maxSize = CGSize(width: CGFloat(Float.infinity), height: label.frame.size.height)
         let ntext = text as NSString
-        let textSize = ntext.boundingRect(with: maxSize, options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: UIFont(name: "Apple SD Gothic Neo", size: 15)!], context: nil)
+        let textSize = ntext.boundingRect(with: maxSize, options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: font], context: nil)
         return textSize.size
     }
 }

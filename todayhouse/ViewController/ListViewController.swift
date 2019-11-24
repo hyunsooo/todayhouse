@@ -14,15 +14,23 @@ enum FilterType: String {
     case residence = "주거형태"
 }
 
+protocol ListViewControllerDelegate: class {
+    func deselectFilter(filter: Filter, type: FilterType)
+    func selectFilter(filter: Filter, type: FilterType)
+}
+
+typealias Category = (key: FilterType, value: [Filter])
+
 class ListViewController: UIViewController {
 
     @IBOutlet var categoryCollectionView: UICollectionView!
     @IBOutlet var filterCollectionView: UICollectionView!
     @IBOutlet var tableView: UITableView!
+    private let filterMenu = FilterMenu()
     
     var currentPage: Int = 1
-    var filters = [(key: FilterType, value: [Filter])]()            // categoryCollectionView's dataSource
-    var selectedFilters = [(key: FilterType, value: Filter)]()      // filterCollectionView's dataSourcde
+    var filters = [Category]()            // categoryCollectionView's dataSource
+    var selectedFilters = [(filterName: String, key: String, value: String)]()      // filterCollectionView's dataSourcde
     var dataSource = [Model]()                                      // tableView's dataSource
     var isLoading: Bool = false
     var isEnd: Bool = false
@@ -62,33 +70,27 @@ class ListViewController: UIViewController {
         
         categoryCollectionView.reloadData()
         
-        selectedFilters.append((key: FilterType.residence, value: Filter(title: "아파트", value: "1")))
-        selectedFilters.append((key: FilterType.space, value: Filter(title: "거실", value: "1")))
+//        selectedFilters.append((filterName: "거실", param: URLQueryItem(name: "\(FilterType.space)", value: "1")))
+//        selectedFilters.append((filterName: "아파트", param: URLQueryItem(name: "\(FilterType.residence)", value: "1")))
         
-        filterCollectionView.reloadData()
+//        filterCollectionView.reloadData()
     }
 }
 
-
-//        * parameters
-//            * order: 정렬
-//                * 최신순(recent), 베스트(best), 인기순(popular)
-//            * space: 공간
-//                * 거실(1), 침실(2), 주방(3), 욕실(4)
-//            * residence: 주거형태
-//                * 아파트(1), 빌라&연립(2), 단독주택(3), 사무공간(4)
 extension ListViewController {
     func loadData() {
-        
         let urls = "https://s3.ap-northeast-2.amazonaws.com/bucketplace-coding-test/cards/page_\(currentPage).json"
-        if var urlComponents = URLComponents(string: urls) {            // url string malform check
-            var items = [URLQueryItem]()
-            for (key, value) in selectedFilters {
-                items.append(URLQueryItem(name: "\(key)", value: value.value))
-            }
-            urlComponents.queryItems = items
-            let request = URLRequest(url: urlComponents.url!)
+        if var url = URL(string: urls) {            // url string malform check
+//            let params: [String] = selectedFilters.map { (filterName, key, value) -> String in
+//                return key.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "" + "=" + value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+//            }
             
+            
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+//            request.httpBody = parameters.map { (key, value) -> String in
+//
+//            }.joined(separator: "&").data(using: .utf8)
             self.isLoading = true
             URLSession.shared.dataTask(with: request) { [weak self] (data, response, error) in
                 guard let self = self else { return }
@@ -140,6 +142,13 @@ extension ListViewController {
         currentPage += 1
         loadData()
     }
+    
+    func reload() {
+        dataSource = []
+        currentPage = 1
+        isEnd = false
+        loadData()
+    }
 }
 
 extension ListViewController: UITableViewDelegate, UITableViewDataSource {
@@ -176,7 +185,7 @@ extension ListViewController: UICollectionViewDelegate, UICollectionViewDataSour
             return cell
         } else {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FilterCell.identifier, for: indexPath) as? FilterCell else { return FilterCell() }
-            cell.filterNameLabel.text = selectedFilters[indexPath.row].value.title
+            cell.filterNameLabel.text = selectedFilters[indexPath.row].filterName
             return cell
         }
     }
@@ -184,8 +193,7 @@ extension ListViewController: UICollectionViewDelegate, UICollectionViewDataSour
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == categoryCollectionView {
             print(filters[indexPath.row].key.rawValue)
-        } else {
-            print(selectedFilters[indexPath.row])
+            filterMenu.showFilter(filters[indexPath.row])
         }
     }
 }
@@ -193,13 +201,27 @@ extension ListViewController: UICollectionViewDelegate, UICollectionViewDataSour
 extension ListViewController: FilterLayoutDelegate {
     func collectionView(_ collectionView: UICollectionView, sizeForIndexPath indexPath: IndexPath) -> CGSize {
         if collectionView == categoryCollectionView {
-            let width: CGFloat = Utils.getTextSize(text: filters[indexPath.row].key.rawValue).width
+            let width: CGFloat = Utils.getTextSize(text: filters[indexPath.row].key.rawValue, font: UIFont(name: "AppleSDGothicNeo-Regular", size: 15)!).width
             return CGSize(width: width + 30.0, height: 32)
         }
         else {
-            let width: CGFloat = Utils.getTextSize(text: selectedFilters[indexPath.row].value.title).width
+            let width: CGFloat = Utils.getTextSize(text: selectedFilters[indexPath.row].filterName, font: UIFont(name: "AppleSDGothicNeo-Regular", size: 15)!).width
             return CGSize(width: width + 36.0, height: 26)
         }
     }
+}
+
+extension ListViewController: ListViewControllerDelegate {
+    func selectFilter(filter: Filter, type: FilterType) {
+        // 필터 추가
+        let selected = (filterName: filter.title, key: type.rawValue, value: filter.value)
+        selectedFilters.append(selected)
+        filterCollectionView.reloadData()
+        
+        reload()
+    }
     
+    func deselectFilter(filter: Filter, type: FilterType) {
+        // 필터 없애기 -> reload
+    }
 }
