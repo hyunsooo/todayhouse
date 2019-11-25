@@ -32,9 +32,9 @@ class ListViewController: UIViewController {
     private let filterMenu = FilterMenu()
     
     var currentPage: Int = 1
-    var filters = [Category]()            // categoryCollectionView's dataSource
+    var filters = [Category]()                                                          // categoryCollectionView's dataSource
     var selectedFilters = [(filterName: String, key: FilterType, value: String)]()      // filterCollectionView's dataSourcde
-    var dataSource = [Model]()                                      // tableView's dataSource
+    var dataSource = [Model]()                                                          // tableView's dataSource
     var isLoading: Bool = false
     var isEnd: Bool = false
     
@@ -77,19 +77,17 @@ class ListViewController: UIViewController {
                                                            Filter(title: "빌라&연립", value: "2"),
                                                            Filter(title: "단독주택", value: "3"),
                                                            Filter(title: "사무공간", value: "4")]))
-        
         categoryCollectionView.reloadData()
     }
 }
 
 extension ListViewController {
     func loadData() {
-        let urls = "https://s3.ap-northeast-2.amazonaws.com/bucketplace-coding-test/cards/page_\(currentPage).json"
+       
+        let parameters = selectedFilters.map { "\("\($0.key)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")=\($0.value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")" }.joined(separator: "&")
+         let urls = "https://s3.ap-northeast-2.amazonaws.com/bucketplace-coding-test/cards/page_\(currentPage).json?\(parameters)"
         if let url = URL(string: urls) {            // url string malform check
-            let parameters = selectedFilters.map { "\("\($0.key)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")=\($0.value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")" }.joined(separator: "&")
-            var request = URLRequest(url: url)
-            request.httpMethod = "GET"
-            request.httpBody = parameters.data(using: .utf8)
+            let request = URLRequest(url: url)
             self.isLoading = true
             URLSession.shared.dataTask(with: request) { [weak self] (data, response, error) in
                 guard let self = self else { return }
@@ -238,7 +236,6 @@ extension ListViewController: ListViewControllerDelegate {
             print("중복된 필터입니다.")
             return
         }
-        print(newFilter)
         selectedFilters.append(newFilter)
         categoryCollectionView.reloadData()
         filterCollectionView.reloadData()
@@ -246,7 +243,6 @@ extension ListViewController: ListViewControllerDelegate {
     
     func deselectFilter(filter: Filter, type: FilterType) {
         // 필터 없애기 -> reload
-        print("deselectFilter")
         selectedFilters.removeAll { (sfilter) -> Bool in
             return sfilter.key == type && sfilter.value == filter.value
         }

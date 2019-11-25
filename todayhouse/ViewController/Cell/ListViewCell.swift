@@ -8,6 +8,7 @@
 
 import UIKit
 
+//TODO: 더 보기 달기.
 class ListViewCell: UITableViewCell {
     static let identifier = "kListViewCell"
         
@@ -57,7 +58,7 @@ extension ListViewCell {
         self.model = data
         imageUrls = [data.imageUrl]
         self.descriptionLabel.text = data.description ?? ""
-        if descriptionLabel.calculateLineCount() > 5 {
+        if descriptionLabel.calculateLineCount() > descriptionLabel.numberOfLines {
             self.descriptionLabel.text = "\(data.description ?? "") 더 보기"
         }
     }
