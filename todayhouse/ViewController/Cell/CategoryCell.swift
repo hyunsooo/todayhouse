@@ -13,10 +13,12 @@ class CategoryCell: UICollectionViewCell {
     static let identifier = "kCategoryCell"
     
     @IBOutlet var categoryNameLabel: UILabel!
+    @IBOutlet var downImageView: UIImageView!
     
     override func awakeFromNib() {
         super.awakeFromNib()
         self.layer.cornerRadius = 5
+        downImageView.image =  downImageView.image?.withRenderingMode(.alwaysTemplate)
     }
 
 }

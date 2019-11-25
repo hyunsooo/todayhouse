@@ -25,7 +25,7 @@ class FilterMenuHeaderView: UITableViewHeaderFooterView {
     
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
-        backgroundColor = .white
+        tintColor = .white
         
         titleLabel.font = UIFont(name: "AppleSDGothicNeo-Bold", size: 17)
         

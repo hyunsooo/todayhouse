@@ -25,7 +25,7 @@ class FilterMenu: NSObject {
         btn.titleLabel?.font = UIFont(name: "AppleSDGothicNeo-Bold", size: 17)!
         btn.setTitle("확인", for: .normal)
         btn.setTitleColor(.white, for: .normal)
-        btn.addTarget(self, action: #selector(confirm), for: .touchUpInside)
+        btn.addTarget(self, action: #selector(dismiss), for: .touchUpInside)
         return btn
     }()
     
@@ -34,12 +34,6 @@ class FilterMenu: NSObject {
         tv.backgroundColor = .white
         tv.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         return tv
-    }()
-    
-    let collectionView: UICollectionView = {
-        let cv = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-        cv.backgroundColor = .white
-        return cv
     }()
     
     override init() {
@@ -51,7 +45,7 @@ class FilterMenu: NSObject {
         tableView.allowsMultipleSelection = true
     }
     
-    func showFilter(_ category: Category) {
+    func showFilter(_ category: Category, selectedFilters: [Filter]) {
         
         self.category = category
         
@@ -75,8 +69,17 @@ class FilterMenu: NSObject {
             backView.frame = window.frame
             backView.alpha = 0
             
-            collectionView.reloadData()
             tableView.reloadData()
+            if !selectedFilters.isEmpty {
+                for i in 0..<category.value.count {
+                    let filter = category.value[i]
+                    if selectedFilters.contains(where: {$0.value == filter.value}) {
+                        DispatchQueue.main.async {
+                            self.tableView.selectRow(at: IndexPath(item: i, section: 0), animated: false, scrollPosition: .none)
+                        }
+                    }
+                }
+            }
             
             UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
                 self.backView.alpha = 1
@@ -98,10 +101,7 @@ class FilterMenu: NSObject {
                             
                         }
        })
-    }
-    
-    @objc func confirm() {
-        dismiss()
+        delegate?.reload()
     }
 }
 
@@ -113,6 +113,9 @@ extension FilterMenu: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: FilterMenuCell.identifier, for: indexPath) as? FilterMenuCell else { return FilterMenuCell(style: .default, reuseIdentifier: FilterMenuCell.identifier) }
         cell.menuNameLabel.text = category?.value[indexPath.row].title
+        let selectedBackgroundView = UIView(frame: cell.frame)
+        selectedBackgroundView.backgroundColor = #colorLiteral(red: 0.937254902, green: 0.9843137255, blue: 1, alpha: 1)
+        cell.selectedBackgroundView = selectedBackgroundView
         return cell
     }
     
@@ -129,7 +132,6 @@ extension FilterMenu: UITableViewDelegate, UITableViewDataSource {
         let header = FilterMenuHeaderView()
         header.setTitle(category.key.rawValue)
         header.delegate = self
-        header.backgroundColor = .white
         return header
     }
     
@@ -148,7 +150,10 @@ extension FilterMenu: UITableViewDelegate, UITableViewDataSource {
 
 extension FilterMenu: FilterMenuDelegate {
     func initialize() {
-        guard let rows = tableView.indexPathsForSelectedRows else { return }
-        rows.forEach { tableView.deselectRow(at: $0, animated: false) }
+        guard let rows = tableView.indexPathsForSelectedRows, let category = category else { return }
+        rows.forEach {
+            tableView.deselectRow(at: $0, animated: false)
+            delegate?.initializeFilter(type: category.key)
+        }
     }
 }

@@ -27,7 +27,8 @@ class ListViewCell: UITableViewCell {
         }
     }
 
-    var _indexPath: IndexPath?
+    weak var delegate: ListViewControllerDelegate?
+    var indexPath: IndexPath?
     
     @IBOutlet var descriptionLabel: UILabel!
     @IBOutlet var collectionView: UICollectionView!
@@ -67,12 +68,16 @@ extension ListViewCell: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PictureCell.identifier, for: indexPath) as? PictureCell else { return PictureCell() }
         cell.setImage(imageUrls[indexPath.row])
-        _indexPath = indexPath
+//        _indexPath = indexPath
         
         if imageUrls.count > 4 && indexPath.item == 3 {
             cell.showMoreView(count: imageUrls.count - 4)
         }
         
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        delegate?.showDetail(indexPath)
     }
 }

@@ -28,6 +28,7 @@
 		1719F47E238AD2B80021967A /* FilterMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1719F47D238AD2B80021967A /* FilterMenu.swift */; };
 		1719F480238AD8730021967A /* FilterMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1719F47F238AD8730021967A /* FilterMenuCell.swift */; };
 		1719F482238ADF680021967A /* FilterMenuHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1719F481238ADF680021967A /* FilterMenuHeaderView.swift */; };
+		17F70A76238BE32200B945C6 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17F70A75238BE32200B945C6 /* DetailViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,6 +76,7 @@
 		1719F47D238AD2B80021967A /* FilterMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterMenu.swift; sourceTree = "<group>"; };
 		1719F47F238AD8730021967A /* FilterMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterMenuCell.swift; sourceTree = "<group>"; };
 		1719F481238ADF680021967A /* FilterMenuHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterMenuHeaderView.swift; sourceTree = "<group>"; };
+		17F70A75238BE32200B945C6 /* DetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -180,6 +182,7 @@
 			children = (
 				1719F46F238A88930021967A /* Cell */,
 				1719F42F23890B0A0021967A /* ListViewController.swift */,
+				17F70A75238BE32200B945C6 /* DetailViewController.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -360,6 +363,7 @@
 				1719F472238A89000021967A /* CategoryCell.swift in Sources */,
 				1719F460238915DF0021967A /* PictureLayout.swift in Sources */,
 				1719F46B238A5FBD0021967A /* ListViewCell.swift in Sources */,
+				17F70A76238BE32200B945C6 /* DetailViewController.swift in Sources */,
 				1719F482238ADF680021967A /* FilterMenuHeaderView.swift in Sources */,
 				1719F467238A419F0021967A /* Model.swift in Sources */,
 			);

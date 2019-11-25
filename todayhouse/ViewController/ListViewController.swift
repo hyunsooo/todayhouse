@@ -15,9 +15,11 @@ enum FilterType: String {
 }
 
 protocol ListViewControllerDelegate: class {
+    func reload()
     func deselectFilter(filter: Filter, type: FilterType)
     func selectFilter(filter: Filter, type: FilterType)
     func initializeFilter(type: FilterType)
+    func showDetail(_ indexPath: IndexPath)
 }
 
 typealias Category = (key: FilterType, value: [Filter])
@@ -31,7 +33,7 @@ class ListViewController: UIViewController {
     
     var currentPage: Int = 1
     var filters = [Category]()            // categoryCollectionView's dataSource
-    var selectedFilters = [(filterName: String, key: String, value: String)]()      // filterCollectionView's dataSourcde
+    var selectedFilters = [(filterName: String, key: FilterType, value: String)]()      // filterCollectionView's dataSourcde
     var dataSource = [Model]()                                      // tableView's dataSource
     var isLoading: Bool = false
     var isEnd: Bool = false
@@ -43,6 +45,11 @@ class ListViewController: UIViewController {
         setupViews()
         setCategory()
         loadData()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.isNavigationBarHidden = true
     }
     
     func setupViews() {
@@ -79,7 +86,10 @@ extension ListViewController {
     func loadData() {
         let urls = "https://s3.ap-northeast-2.amazonaws.com/bucketplace-coding-test/cards/page_\(currentPage).json"
         if let url = URL(string: urls) {            // url string malform check
-            let parameters = selectedFilters.map { "\($0.key.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")=\($0.value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")" }.joined(separator: "&")
+            
+            let parameters = selectedFilters.map { "\("\($0.key)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")=\($0.value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")" }.joined(separator: "&")
+            
+            print("PARAM : \(parameters)")
             var request = URLRequest(url: url)
             request.httpMethod = "GET"
             request.httpBody = parameters.data(using: .utf8)
@@ -135,12 +145,7 @@ extension ListViewController {
         loadData()
     }
     
-    func reload() {
-        dataSource = []
-        currentPage = 1
-        isEnd = false
-        loadData()
-    }
+    
 }
 
 extension ListViewController: UITableViewDelegate, UITableViewDataSource {
@@ -152,11 +157,18 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: ListViewCell.identifier, for: indexPath) as? ListViewCell else { return ListViewCell() }
         cell.setDescriptionLabel(dataSource[indexPath.row].description ?? "")
         cell.imageUrls = [dataSource[indexPath.row].imageUrl]
+        cell.indexPath = indexPath
+        cell.delegate = self
         return cell
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         loadMore(indexPath: indexPath)
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print(dataSource[indexPath.row])
+        showDetail(indexPath)
     }
     
 }
@@ -174,10 +186,23 @@ extension ListViewController: UICollectionViewDelegate, UICollectionViewDataSour
         if collectionView == categoryCollectionView {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CategoryCell.identifier, for: indexPath) as? CategoryCell else { return CategoryCell() }
             cell.categoryNameLabel.text = filters[indexPath.row].key.rawValue
+            let selectedFiltersByCategory = selectedFilters.filter { $0.key == filters[indexPath.row].key}
+            if selectedFiltersByCategory.count > 0 {
+                cell.backgroundColor = #colorLiteral(red: 0.9098039216, green: 0.9568627451, blue: 0.9843137255, alpha: 1)
+                cell.categoryNameLabel.textColor = #colorLiteral(red: 0.2078431373, green: 0.7725490196, blue: 0.9411764706, alpha: 1)
+                cell.downImageView.tintColor = #colorLiteral(red: 0.2078431373, green: 0.7725490196, blue: 0.9411764706, alpha: 1)
+            } else {
+                cell.backgroundColor = #colorLiteral(red: 0.9607843137, green: 0.9607843137, blue: 0.9607843137, alpha: 1)
+                cell.categoryNameLabel.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.54)
+                cell.downImageView.tintColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.54)
+            }
             return cell
         } else {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FilterCell.identifier, for: indexPath) as? FilterCell else { return FilterCell() }
             cell.filterNameLabel.text = selectedFilters[indexPath.row].filterName
+            cell.delegate = self
+            cell.filter = Filter(title: selectedFilters[indexPath.row].filterName, value: selectedFilters[indexPath.row].value)
+            cell.type = selectedFilters[indexPath.row].key
             return cell
         }
     }
@@ -185,7 +210,8 @@ extension ListViewController: UICollectionViewDelegate, UICollectionViewDataSour
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == categoryCollectionView {
             print(filters[indexPath.row].key.rawValue)
-            filterMenu.showFilter(filters[indexPath.row])
+            let selectedFiltersByCategory = selectedFilters.filter { $0.key == filters[indexPath.row].key}
+            filterMenu.showFilter(filters[indexPath.row], selectedFilters: selectedFiltersByCategory.map { Filter(title: $0.filterName, value: $0.value) })
         }
     }
 }
@@ -198,37 +224,54 @@ extension ListViewController: FilterLayoutDelegate {
         }
         else {
             let width: CGFloat = Utils.getTextSize(text: selectedFilters[indexPath.row].filterName, font: UIFont(name: "AppleSDGothicNeo-Regular", size: 15)!).width
-            return CGSize(width: width + 36.0, height: 26)
+            return CGSize(width: width + 38.0, height: 26)
         }
     }
 }
 
 extension ListViewController: ListViewControllerDelegate {
+    
+    func showDetail(_ indexPath: IndexPath) {
+        guard let detailViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "detailViewController") as? DetailViewController else { return }
+       detailViewController.model = dataSource[indexPath.row]
+       navigationController?.pushViewController(detailViewController, animated: true)
+    }
+    
     func selectFilter(filter: Filter, type: FilterType) {
         // 필터 추가
-        let newFilter = (filterName: filter.title, key: "\(type)", value: filter.value)
+        let newFilter = (filterName: filter.title, key: type, value: filter.value)
+        guard !selectedFilters.contains(where: { $0 == newFilter }) else {
+            print("중복된 필터입니다.")
+            return
+        }
+        print(newFilter)
         selectedFilters.append(newFilter)
+        categoryCollectionView.reloadData()
         filterCollectionView.reloadData()
-        
-        reload()
     }
     
     func deselectFilter(filter: Filter, type: FilterType) {
         // 필터 없애기 -> reload
+        print("deselectFilter")
         selectedFilters.removeAll { (sfilter) -> Bool in
-            return sfilter.key == "\(type)" && sfilter.value == filter.value
+            return sfilter.key == type && sfilter.value == filter.value
         }
+        categoryCollectionView.reloadData()
         filterCollectionView.reloadData()
-        
-        reload()
     }
     
     func initializeFilter(type: FilterType) {
         selectedFilters.removeAll { (sfilter) -> Bool in
-            return sfilter.key == "\(type)"
+            return sfilter.key == type
         }
+        categoryCollectionView.reloadData()
         filterCollectionView.reloadData()
-        
-        reload()
+    }
+    
+    func reload() {
+        dataSource = []
+        currentPage = 1
+        isEnd = false
+        loadData()
     }
 }
