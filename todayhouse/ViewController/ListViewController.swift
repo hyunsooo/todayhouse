@@ -19,7 +19,7 @@ protocol ListViewControllerDelegate: class {
     func deselectFilter(filter: Filter, type: FilterType)
     func selectFilter(filter: Filter, type: FilterType)
     func initializeFilter(type: FilterType)
-    func showDetail(_ indexPath: IndexPath)
+    func showDetail(_ model: Model)
 }
 
 typealias Category = (key: FilterType, value: [Filter])
@@ -86,10 +86,7 @@ extension ListViewController {
     func loadData() {
         let urls = "https://s3.ap-northeast-2.amazonaws.com/bucketplace-coding-test/cards/page_\(currentPage).json"
         if let url = URL(string: urls) {            // url string malform check
-            
             let parameters = selectedFilters.map { "\("\($0.key)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")=\($0.value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")" }.joined(separator: "&")
-            
-            print("PARAM : \(parameters)")
             var request = URLRequest(url: url)
             request.httpMethod = "GET"
             request.httpBody = parameters.data(using: .utf8)
@@ -155,9 +152,7 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: ListViewCell.identifier, for: indexPath) as? ListViewCell else { return ListViewCell() }
-        cell.setDescriptionLabel(dataSource[indexPath.row].description ?? "")
-        cell.imageUrls = [dataSource[indexPath.row].imageUrl]
-        cell.indexPath = indexPath
+        cell.update(dataSource[indexPath.row])
         cell.delegate = self
         return cell
     }
@@ -167,8 +162,7 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print(dataSource[indexPath.row])
-        showDetail(indexPath)
+        showDetail(dataSource[indexPath.row])
     }
     
 }
@@ -231,9 +225,9 @@ extension ListViewController: FilterLayoutDelegate {
 
 extension ListViewController: ListViewControllerDelegate {
     
-    func showDetail(_ indexPath: IndexPath) {
+    func showDetail(_ model: Model) {
         guard let detailViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "detailViewController") as? DetailViewController else { return }
-       detailViewController.model = dataSource[indexPath.row]
+       detailViewController.model = model
        navigationController?.pushViewController(detailViewController, animated: true)
     }
     

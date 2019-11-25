@@ -28,7 +28,7 @@ class ListViewCell: UITableViewCell {
     }
 
     weak var delegate: ListViewControllerDelegate?
-    var indexPath: IndexPath?
+    var model: Model?
     
     @IBOutlet var descriptionLabel: UILabel!
     @IBOutlet var collectionView: UICollectionView!
@@ -45,16 +45,20 @@ class ListViewCell: UITableViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        self.imageUrls = []
-        self.descriptionLabel.text = ""
+        imageUrls = []
+        descriptionLabel.text = ""
+        model = nil
     }
 }
 
 extension ListViewCell {
-    func setDescriptionLabel(_ description: String) {
-        self.descriptionLabel.text = description
+    
+    func update(_ data: Model) {
+        self.model = data
+        imageUrls = [data.imageUrl]
+        self.descriptionLabel.text = data.description ?? ""
         if descriptionLabel.calculateLineCount() > 5 {
-            self.descriptionLabel.text = "\(description) 더 보기"
+            self.descriptionLabel.text = "\(data.description ?? "") 더 보기"
         }
     }
 }
@@ -68,7 +72,6 @@ extension ListViewCell: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PictureCell.identifier, for: indexPath) as? PictureCell else { return PictureCell() }
         cell.setImage(imageUrls[indexPath.row])
-//        _indexPath = indexPath
         
         if imageUrls.count > 4 && indexPath.item == 3 {
             cell.showMoreView(count: imageUrls.count - 4)
@@ -78,6 +81,8 @@ extension ListViewCell: UICollectionViewDataSource, UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        delegate?.showDetail(indexPath)
+        if let model = model {
+            delegate?.showDetail(model)
+        }
     }
 }

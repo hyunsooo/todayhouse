@@ -26,7 +26,7 @@ class PictureCell: UICollectionViewCell {
         
         moreView.frame = self.bounds
         moreView.backgroundColor = .black
-        moreView.alpha = 0.5
+        moreView.alpha = 0
         self.addSubview(moreView)
         
         moreLabel.textColor = .white

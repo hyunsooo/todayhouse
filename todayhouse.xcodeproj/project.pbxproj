@@ -17,7 +17,7 @@
 		1719F44E23890B0C0021967A /* todayhouseUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1719F44D23890B0C0021967A /* todayhouseUITests.swift */; };
 		1719F460238915DF0021967A /* PictureLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1719F45F238915DF0021967A /* PictureLayout.swift */; };
 		1719F462238A38530021967A /* PictureCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1719F461238A38530021967A /* PictureCell.swift */; };
-		1719F464238A39DC0021967A /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1719F463238A39DC0021967A /* Utils.swift */; };
+		1719F464238A39DC0021967A /* Utils+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1719F463238A39DC0021967A /* Utils+Extensions.swift */; };
 		1719F467238A419F0021967A /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1719F466238A419F0021967A /* Model.swift */; };
 		1719F46B238A5FBD0021967A /* ListViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1719F46A238A5FBD0021967A /* ListViewCell.swift */; };
 		1719F472238A89000021967A /* CategoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1719F470238A89000021967A /* CategoryCell.swift */; };
@@ -65,7 +65,7 @@
 		1719F44F23890B0C0021967A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1719F45F238915DF0021967A /* PictureLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PictureLayout.swift; sourceTree = "<group>"; };
 		1719F461238A38530021967A /* PictureCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PictureCell.swift; sourceTree = "<group>"; };
-		1719F463238A39DC0021967A /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		1719F463238A39DC0021967A /* Utils+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Utils+Extensions.swift"; sourceTree = "<group>"; };
 		1719F466238A419F0021967A /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		1719F46A238A5FBD0021967A /* ListViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewCell.swift; sourceTree = "<group>"; };
 		1719F470238A89000021967A /* CategoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCell.swift; sourceTree = "<group>"; };
@@ -190,7 +190,7 @@
 		1719F46E238A88880021967A /* Util */ = {
 			isa = PBXGroup;
 			children = (
-				1719F463238A39DC0021967A /* Utils.swift */,
+				1719F463238A39DC0021967A /* Utils+Extensions.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -354,7 +354,7 @@
 				1719F43023890B0A0021967A /* ListViewController.swift in Sources */,
 				1719F462238A38530021967A /* PictureCell.swift in Sources */,
 				1719F47A238A8B3B0021967A /* FilterCell.swift in Sources */,
-				1719F464238A39DC0021967A /* Utils.swift in Sources */,
+				1719F464238A39DC0021967A /* Utils+Extensions.swift in Sources */,
 				1719F42C23890B0A0021967A /* AppDelegate.swift in Sources */,
 				1719F480238AD8730021967A /* FilterMenuCell.swift in Sources */,
 				1719F42E23890B0A0021967A /* SceneDelegate.swift in Sources */,
