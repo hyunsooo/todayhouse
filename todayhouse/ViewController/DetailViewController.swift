@@ -35,20 +35,18 @@ class DetailViewController: UIViewController {
 
 extension DetailViewController {
     @objc func zoomIn(_ gestureRecognizer: UITapGestureRecognizer) {
-        guard let image = imageView.image else { return }
         
         startingFrame = imageView.frame
         imageView.isHidden = true
+        
         let zoomingImageView = UIImageView(frame: startingFrame!)
-        zoomingImageView.image = image
+        zoomingImageView.image = imageView.image
         zoomingImageView.contentMode = .scaleAspectFill
         zoomingImageView.isUserInteractionEnabled = true
         zoomingImageView.layer.masksToBounds = true
-        zoomingImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(zoomOut)))
+//        zoomingImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(zoomOut)))
         zoomingImageView.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(pan)))
-        
-        
-        
+        zoomingImageView.addGestureRecognizer(UIPinchGestureRecognizer(target: self, action: #selector(pinch)))
         
         if let window = UIApplication.shared.windows.first {
             backView = UIView(frame: window.frame)
@@ -103,6 +101,30 @@ extension DetailViewController {
         }
     }
     
+    @objc func pinch(_ gestureRecognizer: UIPinchGestureRecognizer) {
+        guard let zoomingImageView = gestureRecognizer.view else { return }
+        let MINIMUM_SCALE: CGFloat = 1.0
+        let MAXIMUM_SCALE: CGFloat = 4.0
+        
+        if gestureRecognizer.state == .ended || gestureRecognizer.state == .changed {
+            let currentScale = zoomingImageView.frame.size.width / zoomingImageView.bounds.size.width
+            var newScale = currentScale * gestureRecognizer.scale
+
+            if newScale < MINIMUM_SCALE { newScale = MINIMUM_SCALE }
+            if newScale > MAXIMUM_SCALE { newScale = MAXIMUM_SCALE }
+
+            let transform = CGAffineTransform(scaleX: newScale, y: newScale)
+            zoomingImageView.transform = transform
+            gestureRecognizer.scale = 1
+            
+            if newScale == MINIMUM_SCALE {
+                self.zDescriptionLabel?.alpha = 1
+            } else {
+                self.zDescriptionLabel?.alpha = 0
+            }
+        }
+    }
+    
     @objc func pan(_ gestureRecognizer: UIPanGestureRecognizer) {
         guard let zoomingImageView = gestureRecognizer.view else { return }
         let transition = gestureRecognizer.translation(in: zoomingImageView)
@@ -140,8 +162,6 @@ extension DetailViewController {
                 alpha = alpha > 0 ? alpha : 0
                 self.backView?.alpha = alpha
             }
-//            let alpha = rate < 0.5 ? 0.5 : (rate > 1 ? 0.5 : rate)
-//            self.backView?.alpha = alpha
         } else if gestureRecognizer.state == .began {
             self.zDescriptionLabel?.alpha = 0
         }

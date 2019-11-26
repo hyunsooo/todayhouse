@@ -59,8 +59,11 @@ extension ListViewCell {
         imageUrls = [data.imageUrl]
         self.descriptionLabel.text = data.description ?? ""
         if descriptionLabel.calculateLineCount() > descriptionLabel.numberOfLines {
-            self.descriptionLabel.text = "\(data.description ?? "") 더 보기"
+            DispatchQueue.main.async {
+                self.descriptionLabel.addTrailing(with: "... 더보기", moreTextColor: #colorLiteral(red: 0.7411764706, green: 0.7411764706, blue: 0.7411764706, alpha: 1))
+            }
         }
+        
     }
 }
 
