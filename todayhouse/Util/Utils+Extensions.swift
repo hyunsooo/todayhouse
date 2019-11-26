@@ -40,7 +40,7 @@ extension UILabel {
         let text = (self.text ?? "") as NSString
         let textSize = text.boundingRect(with: CGSize(width: frame.size.width, height: CGFloat.greatestFiniteMagnitude),
                                          options: .usesLineFragmentOrigin,
-                                         attributes: [NSAttributedString.Key.font: UIFont(name: "AppleSDGothicNeo-Regular", size: 15)!],
+                                         attributes: [NSAttributedString.Key.font: self.font!],
                                          context: nil)
         let lineCount = Int(ceil(textSize.height/charSize))
         return lineCount
@@ -53,23 +53,19 @@ extension UILabel {
         let lengthForVisibleString: Int = visibleLength
 
         if let myText = self.text {
-
             let mutableString: String = myText
             let trimmedString: String? = (mutableString as NSString).replacingCharacters(in: NSRange(location: lengthForVisibleString, length: myText.count - lengthForVisibleString), with: "")
-            let readMoreLength: Int = (readMoreText.count)
+            let readMoreLength: Int = readMoreText.count
             
             guard let safeTrimmedString = trimmedString else { return }
-            print(safeTrimmedString)
             if safeTrimmedString.count <= readMoreLength { return }
 
             let trimmedForReadMore: String = (safeTrimmedString as NSString).replacingCharacters(in: NSRange(location: safeTrimmedString.count - readMoreLength, length: readMoreLength), with: "")
             
-            let answerAttributed = NSMutableAttributedString(string: trimmedForReadMore, attributes: [NSAttributedString.Key.font: UIFont(name: "AppleSDGothicNeo-Regular", size: 15)!])
-            let readMoreAttributed = NSMutableAttributedString(string: moreText, attributes: [NSAttributedString.Key.font: UIFont(name: "AppleSDGothicNeo-Regular", size: 15)!, NSAttributedString.Key.foregroundColor: moreTextColor])
+            let answerAttributed = NSMutableAttributedString(string: trimmedForReadMore, attributes: [NSAttributedString.Key.font: self.font!])
+            let readMoreAttributed = NSMutableAttributedString(string: moreText, attributes: [NSAttributedString.Key.font: self.font!, NSAttributedString.Key.foregroundColor: moreTextColor])
             answerAttributed.append(readMoreAttributed)
             self.attributedText = answerAttributed
-        } else {
-            print("💋")
         }
     }
 
