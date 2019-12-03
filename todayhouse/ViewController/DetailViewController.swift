@@ -140,31 +140,61 @@ extension DetailViewController {
         let pureVelocity: CGFloat = sqrt(pow(velocity.x, 2) + pow(velocity.y, 2))
         let rate: CGFloat = pureVelocity / standard
         
-        if gestureRecognizer.state == .ended {
-            if rate > 1 {
-                _zoomOut(zoomingImageView)
-            } else {
-                if let window = UIApplication.shared.windows.first {
-                    UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
-                        self.backView?.alpha = 1
-                        self.zDescriptionLabel?.alpha = 1
-                        zoomingImageView.center = window.center
-                    })
-                }
-            }
-        } else if gestureRecognizer.state == .changed {
+        switch gestureRecognizer.state {
+        case .began:
+            self.zDescriptionLabel?.alpha = 0
+        case .changed:
+            // backView의 alpha 값을 조정하기 위해서 window의 중앙값 기준으로 거리 r을 잼 (피타고라스의 법칙)
+            // 그 거리가 멀어질수록 alpha값을 내림.
             if let window = UIApplication.shared.windows.first {
                 let centerX = window.center.x
                 let centerY = window.center.y
                 
                 let distance = sqrt(pow(centerX - zoomingImageView.center.x, 2) + pow(centerY - zoomingImageView.center.y, 2)) / 5.0
-                var alpha = (100.0 - distance)/100.0
+                var alpha = (100.0 - distance) / 100.0
                 alpha = alpha > 0 ? alpha : 0
                 self.backView?.alpha = alpha
             }
-        } else if gestureRecognizer.state == .began {
-            self.zDescriptionLabel?.alpha = 0
+        case .ended:
+            if rate > 1 {
+                _zoomOut(zoomingImageView)
+            } else {
+                if let window = UIApplication.shared.windows.first {
+                     UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
+                                           self.backView?.alpha = 1
+                                           self.zDescriptionLabel?.alpha = 1
+                                           zoomingImageView.center = window.center
+                                       })
+                }
+            }
+        @unknown case _: break
         }
+        
+//        if gestureRecognizer.state == .ended {
+//            if rate > 1 {
+//                _zoomOut(zoomingImageView)
+//            } else {
+//                if let window = UIApplication.shared.windows.first {
+//                    UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
+//                        self.backView?.alpha = 1
+//                        self.zDescriptionLabel?.alpha = 1
+//                        zoomingImageView.center = window.center
+//                    })
+//                }
+//            }
+//        } else if gestureRecognizer.state == .changed {
+//            if let window = UIApplication.shared.windows.first {
+//                let centerX = window.center.x
+//                let centerY = window.center.y
+//
+//                let distance = sqrt(pow(centerX - zoomingImageView.center.x, 2) + pow(centerY - zoomingImageView.center.y, 2)) / 5.0
+//                var alpha = (100.0 - distance)/100.0
+//                alpha = alpha > 0 ? alpha : 0
+//                self.backView?.alpha = alpha
+//            }
+//        } else if gestureRecognizer.state == .began {
+//            self.zDescriptionLabel?.alpha = 0
+//        }
         
     }
 }

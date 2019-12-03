@@ -17,6 +17,7 @@ class ListViewCell: UITableViewCell {
             collectionView.reloadData()
             collectionView.layoutIfNeeded() // PictureLayout에서 컨텐트 사이즈가 책정됨.
             
+            // collectionView.heightAnchor 재산정
             self.collectionView.translatesAutoresizingMaskIntoConstraints = false
             self.collectionView.removeConstraint(self.collectionView.constraints.filter { $0.identifier == "collectionViewHeightConstraint" }.first!)
 
